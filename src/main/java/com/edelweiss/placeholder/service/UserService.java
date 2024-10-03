@@ -3,7 +3,11 @@ package com.edelweiss.placeholder.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.catalina.connector.Response;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.edelweiss.placeholder.domain.Users;
 import com.edelweiss.placeholder.repository.UserRepository;
@@ -17,8 +21,11 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    
     public Users getUser(Integer id) {
-        return userRepository.findById(id).orElse(new Users(1, "Suepr", "duper", "duper@gmail.com"));
+        Users user = userRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        return user;
     }
 
     public List<Users> getAllUsers() {

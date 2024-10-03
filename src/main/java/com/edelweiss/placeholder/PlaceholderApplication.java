@@ -1,7 +1,16 @@
 package com.edelweiss.placeholder;
 
+import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+
+import com.edelweiss.placeholder.domain.Users;
+import com.edelweiss.placeholder.repository.UserRepository;
+
+
+import jakarta.transaction.Transactional;
 
 @SpringBootApplication
 public class PlaceholderApplication {
@@ -10,4 +19,14 @@ public class PlaceholderApplication {
 		SpringApplication.run(PlaceholderApplication.class, args);
 	}
 
+	@Bean
+	@Transactional
+	ApplicationRunner useDataLoader(UserRepository repo) {
+		return args -> {
+			repo.deleteAll();
+			repo.save(new Users(1, "Yamashita Shirakawa", "Edelweiss", "edelweiss@gmail.com"));
+			repo.save(new Users(2, "Erirka Sumika", "SumiChawnn", "sumigod@gmail.com"));
+			repo.save(new Users(3, "Tomioka Giyuu", "LonlyGiyuu", "sabishigariya@gmail.com"));
+		};
+	}
 }
