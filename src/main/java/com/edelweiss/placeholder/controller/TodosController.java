@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.edelweiss.placeholder.domain.Todos;
+import com.edelweiss.placeholder.exception.IllegalParameterException;
 import com.edelweiss.placeholder.exception.MissingParameterException;
 import com.edelweiss.placeholder.service.TodosService;
 
