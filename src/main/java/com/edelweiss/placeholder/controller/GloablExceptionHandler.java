@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 import com.edelweiss.placeholder.exception.ErrorCustom;
+import com.edelweiss.placeholder.exception.IllegalParameterException;
+import com.edelweiss.placeholder.exception.PostNotFoundException;
 import com.edelweiss.placeholder.exception.TodoNotFoundException;
 import com.edelweiss.placeholder.exception.UserNotFoundException;
 
@@ -18,6 +20,12 @@ public class GloablExceptionHandler {
         ErrorCustom error = new ErrorCustom(500, ex.getMessage() != null ? ex.getMessage() : "Server Internal Error");
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
 
+    }
+
+    @ExceptionHandler(IllegalParameterException.class)
+    public ResponseEntity<ErrorCustom> handleIllegalParameterException(IllegalParameterException ex) {
+        ErrorCustom error = new ErrorCustom(400, ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
@@ -35,6 +43,12 @@ public class GloablExceptionHandler {
     
     @ExceptionHandler(TodoNotFoundException.class)
     public ResponseEntity<ErrorCustom> handleTodoNotFoundException(TodoNotFoundException ex) {
+        ErrorCustom error = new ErrorCustom(ex.getStatusCode().value(), ex.getReason());
+        return new ResponseEntity<>(error, ex.getStatusCode());
+    }
+
+     @ExceptionHandler(PostNotFoundException.class)
+    public ResponseEntity<ErrorCustom> handlePostNotFoundException(PostNotFoundException ex) {
         ErrorCustom error = new ErrorCustom(ex.getStatusCode().value(), ex.getReason());
         return new ResponseEntity<>(error, ex.getStatusCode());
     }
