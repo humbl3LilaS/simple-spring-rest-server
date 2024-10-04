@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 
 import com.edelweiss.placeholder.exception.ErrorCustom;
+import com.edelweiss.placeholder.exception.TodoNotFoundException;
 import com.edelweiss.placeholder.exception.UserNotFoundException;
 
 @ControllerAdvice
@@ -15,13 +16,19 @@ public class GloablExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorCustom> handleGenericException(Exception ex) {
         ErrorCustom error = new ErrorCustom(500, ex.getMessage() != null ? ex.getMessage() : "Server Internal Error");
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR)
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
 
     }
 
     @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorCustom> handleResponseStatusException(UserNotFoundException ex) {
-        ErrorCustom error = new ErrorCustom(ex.getStatusCode().value(), ex.getReason());        
+    public ResponseEntity<ErrorCustom> handleUserNotFoundExceptoin(UserNotFoundException ex) {
+        ErrorCustom error = new ErrorCustom(ex.getStatusCode().value(), ex.getReason());
+        return new ResponseEntity<>(error, ex.getStatusCode());
+    }
+    
+    @ExceptionHandler(TodoNotFoundException.class)
+    public ResponseEntity<ErrorCustom> handleTodoNotFoundException(TodoNotFoundException ex) {
+        ErrorCustom error = new ErrorCustom(ex.getStatusCode().value(), ex.getReason());
         return new ResponseEntity<>(error, ex.getStatusCode());
     }
 }

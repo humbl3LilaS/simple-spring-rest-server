@@ -3,12 +3,12 @@ package com.edelweiss.placeholder.exception;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.server.ResponseStatusException;
 
-public class UserNotFoundException extends ResponseStatusException {
-    public UserNotFoundException(HttpStatusCode status) {
+public class TodoNotFoundException extends ResponseStatusException {
+    public TodoNotFoundException(HttpStatusCode status) {
         super(status);
     }
     
-    public UserNotFoundException(HttpStatusCode status, String reason) {
+    public TodoNotFoundException(HttpStatusCode status, String reason) {
         super(status, reason);
     }
 }
