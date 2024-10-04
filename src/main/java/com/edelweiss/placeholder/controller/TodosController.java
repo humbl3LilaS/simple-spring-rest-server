@@ -1,6 +1,7 @@
 package com.edelweiss.placeholder.controller;
 
 import java.util.List;
+import java.lang.IllegalArgumentException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.edelweiss.placeholder.domain.Todos;
+import com.edelweiss.placeholder.exception.MissingParameterException;
 import com.edelweiss.placeholder.service.TodosService;
 
 @Controller
@@ -29,7 +31,10 @@ public class TodosController {
     }
 
     @GetMapping(params = "userId")
-    public ResponseEntity<List<Todos>> getTodosByUserId(@RequestParam(required = true) Integer userId) {
+    public ResponseEntity<List<Todos>> getTodosByUserId(@RequestParam(required = false) Integer userId) {
+        if (userId == null) {
+            throw new MissingParameterException("Missing Request Parameter: userId");
+        }
         List<Todos> todos = service.getTodosByUserId(userId);
         return new ResponseEntity<>(todos, HttpStatus.OK);        
     }
