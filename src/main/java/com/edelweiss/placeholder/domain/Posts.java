@@ -10,15 +10,15 @@ import lombok.NoArgsConstructor;
 @Data
 @Entity
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
+@NoArgsConstructor(access = AccessLevel.PUBLIC, force = false)
 public class Posts {
     
     @Id
-    Integer id;
+    private Integer id;
 
-    Integer userId;
+    private Integer userId;
 
-    String title;
+    private String title;
 
-    String body;
+    private String body;
 }

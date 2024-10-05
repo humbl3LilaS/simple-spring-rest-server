@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.transaction.PlatformTransactionManager;
 
+import com.edelweiss.placeholder.domain.Posts;
 import com.edelweiss.placeholder.domain.Todos;
 import com.edelweiss.placeholder.domain.Users;
 
@@ -34,6 +35,9 @@ public class StartupConfig {
 
     @Value("${file.todos.input}")
     private String todosFileInput;
+
+    @Value("${file.posts.input}")
+    private String postsFileInput;
 
     @Bean
     public FlatFileItemReader usersReader() {
@@ -64,6 +68,20 @@ public class StartupConfig {
     }
 
     @Bean
+    FlatFileItemReader postsReader() {
+        return new FlatFileItemReaderBuilder<>()
+                .name("postsReader")
+                .resource(new ClassPathResource(postsFileInput))
+                .delimited()
+                .names(new String[] {"id", "userId", "title", "body"})
+                .fieldSetMapper(new BeanWrapperFieldSetMapper<>(){
+                    {
+                        setTargetType(Posts.class);
+                    }
+                }).build();
+    }
+
+    @Bean
     JdbcBatchItemWriter<Users> usersWriter(DataSource dataSource) {
         return new JdbcBatchItemWriterBuilder<Users>()
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
@@ -82,11 +100,21 @@ public class StartupConfig {
     }
 
     @Bean
-    public Job importJob(JobRepository jobRepository, Step step1, Step step2) {
+    JdbcBatchItemWriter<Posts> postsWriter(DataSource dataSource) {
+        return new JdbcBatchItemWriterBuilder<Posts>()
+                .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
+                .sql("INSERT INTO posts (id, user_id, title, body) VALUES (:id, :userId, :title, :body)")
+                .dataSource(dataSource)
+                .build();
+    }
+
+    @Bean
+    public Job importJob(JobRepository jobRepository, Step step1, Step step2, Step step3) {
         return new JobBuilder("importJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .start(step1)
                 .next(step2)
+                .next(step3)
                 .build();
     }
 
@@ -103,10 +131,20 @@ public class StartupConfig {
     @Bean
     public Step step2(JobRepository jobRepository, PlatformTransactionManager manager, JdbcBatchItemWriter<Todos> todosWriter) 
     {
-        return new StepBuilder("step2", jobRepository)    
+        return new StepBuilder("step2", jobRepository)
                 .<Todos, Todos>chunk(5, manager)
                 .reader(todosReader())
                 .writer(todosWriter)
                 .build();
     }
+    
+    @Bean
+    public Step step3(JobRepository jobRepository, PlatformTransactionManager manager, JdbcBatchItemWriter<Posts> postsWriter) 
+    {
+        return new StepBuilder("step3", jobRepository)
+                .<Posts, Posts>chunk(5, manager)
+                .reader(postsReader())
+                .writer(postsWriter)
+                .build();
+    }   
 }
