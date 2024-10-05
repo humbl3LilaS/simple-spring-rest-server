@@ -11,16 +11,16 @@ import lombok.NoArgsConstructor;
 @Data
 @Entity
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
+@NoArgsConstructor(access = AccessLevel.PUBLIC, force = true)
 public class Todos {
     @Id
-    Integer id;
+    private Integer id;
 
-    Integer userId;
-
-    @NonNull
-    String title;
+    private Integer userId;
 
     @NonNull
-    Boolean completed;
+    private String title;
+
+    @NonNull
+    private Boolean completed;
 }

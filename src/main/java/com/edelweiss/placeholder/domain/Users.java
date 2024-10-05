@@ -11,17 +11,17 @@ import lombok.NoArgsConstructor;
 @Data
 @Entity
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PRIVATE, force = true)
+@NoArgsConstructor(access = AccessLevel.PUBLIC, force = false)
 public class Users {
     @Id
-    Integer id;
+    private Integer id;
 
     @NonNull
-    String name;
+    private String name;
 
     @NonNull
-    String userName;
+    private String userName;
 
     @NonNull
-    String email;
+    private String email;
 }
