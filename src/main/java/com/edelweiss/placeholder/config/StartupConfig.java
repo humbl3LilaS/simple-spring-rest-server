@@ -25,10 +25,10 @@ import com.edelweiss.placeholder.domain.Todos;
 import com.edelweiss.placeholder.domain.Users;
 
 
-
 @Configuration
-public class StartupConfig {
-    
+public class StartupConfig
+{
+
     // map csv resources to field
     @Value("${file.users.input}")
     private String usersFileInput;
@@ -39,77 +39,52 @@ public class StartupConfig {
     @Value("${file.posts.input}")
     private String postsFileInput;
 
-    @Bean
-    public FlatFileItemReader usersReader() {
+    private FlatFileItemReader generateFileReader(String name, String filePath, String[] objectMapper,
+                                                  Class<? extends Object> classMapper)
+    {
         return new FlatFileItemReaderBuilder<>()
-                .name("usersReader")
-                .resource(new ClassPathResource(usersFileInput))
+                .name(name)
+                .resource(new ClassPathResource(filePath))
                 .delimited()
-                .names(new String[] { "id", "name", "userName", "email" })
-                .fieldSetMapper(new BeanWrapperFieldSetMapper<>() {
+                .names(objectMapper)
+                .fieldSetMapper(new BeanWrapperFieldSetMapper<>()
+                {
                     {
-                        setTargetType(Users.class);
+                        setTargetType(classMapper);
                     }
                 }).build();
     }
 
-    @Bean
-    public FlatFileItemReader todosReader() {
-        return new FlatFileItemReaderBuilder<>()
-                .name("todosReader")
-                .resource(new ClassPathResource(todosFileInput))
-                .delimited()
-                .names(new String[] { "id", "userId", "title", "completed" })
-                .fieldSetMapper(new BeanWrapperFieldSetMapper<>() {
-                    {
-                        setTargetType(Todos.class);
-                    }
-                }).build();
-    }
 
-    @Bean
-    FlatFileItemReader postsReader() {
-        return new FlatFileItemReaderBuilder<>()
-                .name("postsReader")
-                .resource(new ClassPathResource(postsFileInput))
-                .delimited()
-                .names(new String[] {"id", "userId", "title", "body"})
-                .fieldSetMapper(new BeanWrapperFieldSetMapper<>(){
-                    {
-                        setTargetType(Posts.class);
-                    }
-                }).build();
-    }
-
-    @Bean
-    JdbcBatchItemWriter<Users> usersWriter(DataSource dataSource) {
-        return new JdbcBatchItemWriterBuilder<Users>()
+    private  <T> JdbcBatchItemWriter<T> createWriter(DataSource dataSource, String sql) {
+        return new JdbcBatchItemWriterBuilder<T>()
                 .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
-                .sql("INSERT INTO users (id, name, user_name, email) VALUES (:id, :name, :userName, :email)")
+                .sql(sql)
                 .dataSource(dataSource)
                 .build();
     }
 
     @Bean
-    JdbcBatchItemWriter<Todos> todosWriter(DataSource dataSource) {
-        return new JdbcBatchItemWriterBuilder<Todos>()
-                .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
-                .sql("INSERT INTO todos (id, user_id, title, completed) VALUES (:id, :userId, :title, :completed)")
-                .dataSource(dataSource)
-                .build();
+    public JdbcBatchItemWriter<Users> usersWriter(DataSource dataSource) {
+        String usersSql = "INSERT INTO users (id, name, user_name, email) VALUES (:id, :name, :userName, :email)";
+        return createWriter(dataSource, usersSql);
     }
 
     @Bean
-    JdbcBatchItemWriter<Posts> postsWriter(DataSource dataSource) {
-        return new JdbcBatchItemWriterBuilder<Posts>()
-                .itemSqlParameterSourceProvider(new BeanPropertyItemSqlParameterSourceProvider<>())
-                .sql("INSERT INTO posts (id, user_id, title, body) VALUES (:id, :userId, :title, :body)")
-                .dataSource(dataSource)
-                .build();
+    public JdbcBatchItemWriter<Todos> todosWriter(DataSource dataSource) {
+        String todosSql = "INSERT INTO todos (id, user_id, title, completed) VALUES (:id, :userId, :title, :completed)";
+        return createWriter(dataSource, todosSql);
     }
 
     @Bean
-    public Job importJob(JobRepository jobRepository, Step step1, Step step2, Step step3) {
+    public JdbcBatchItemWriter<Posts> postsWriter(DataSource dataSource) {
+        String postsSql = "INSERT INTO posts (id, user_id, title, body) VALUES (:id, :userId, :title, :body)";
+        return createWriter(dataSource, postsSql);
+    }
+
+    @Bean
+    public Job importJob(JobRepository jobRepository, Step step1, Step step2, Step step3)
+    {
         return new JobBuilder("importJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .start(step1)
@@ -119,32 +94,47 @@ public class StartupConfig {
     }
 
     @Bean
-    public Step step1(JobRepository jobRepository, PlatformTransactionManager manager,JdbcBatchItemWriter<Users> usersWriter) 
+    public Step step1(JobRepository jobRepository, PlatformTransactionManager manager,
+                      JdbcBatchItemWriter<Users> usersWriter)
     {
         return new StepBuilder("step1", jobRepository)
                 .<Users, Users>chunk(5, manager)
-                .reader(usersReader())
+                .reader(generateFileReader(
+                        "usersReader",
+                        usersFileInput,
+                        new String[]{"id", "name", "userName", "email"},
+                        Users.class))
                 .writer(usersWriter)
                 .build();
     }
-    
+
     @Bean
-    public Step step2(JobRepository jobRepository, PlatformTransactionManager manager, JdbcBatchItemWriter<Todos> todosWriter) 
+    public Step step2(JobRepository jobRepository, PlatformTransactionManager manager,
+                      JdbcBatchItemWriter<Todos> todosWriter)
     {
         return new StepBuilder("step2", jobRepository)
                 .<Todos, Todos>chunk(5, manager)
-                .reader(todosReader())
+                .reader(generateFileReader(
+                        "todosReader",
+                        todosFileInput,
+                        new String[]{"id", "userId", "title", "completed"},
+                        Todos.class))
                 .writer(todosWriter)
                 .build();
     }
-    
+
     @Bean
-    public Step step3(JobRepository jobRepository, PlatformTransactionManager manager, JdbcBatchItemWriter<Posts> postsWriter) 
+    public Step step3(JobRepository jobRepository, PlatformTransactionManager manager,
+                      JdbcBatchItemWriter<Posts> postsWriter)
     {
         return new StepBuilder("step3", jobRepository)
                 .<Posts, Posts>chunk(5, manager)
-                .reader(postsReader())
+                .reader(generateFileReader(
+                        "postsReader",
+                        postsFileInput,
+                        new String[]{"id", "userId", "title", "body"},
+                        Posts.class))
                 .writer(postsWriter)
                 .build();
-    }   
+    }
 }
