@@ -2,7 +2,9 @@ package com.edelweiss.placeholder.controller;
 
 import java.util.List;
 
+
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,13 +26,13 @@ public class PostsController {
         this.service = service;
     }
 
-    @GetMapping()
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Posts>> findAllPosts() {
         List<Posts> posts = service.findAllPosts();
         return new ResponseEntity<>(posts, HttpStatus.OK);
     }
 
-    @GetMapping(params = "userId")
+    @GetMapping(params = "userId" ,produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Posts>> findPostByUserId(@RequestParam(required = false) Integer userId) {
         if (userId == null) {
             throw new IllegalParameterException("Request Paramer userId cannot be null");
@@ -39,7 +41,7 @@ public class PostsController {
         return new ResponseEntity<>(post, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Posts> findPostById(@PathVariable Integer id) {
         Posts post = service.findPostById(id);
         return new ResponseEntity<>(post, HttpStatus.OK);

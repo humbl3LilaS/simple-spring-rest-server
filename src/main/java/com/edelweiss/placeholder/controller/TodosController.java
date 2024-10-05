@@ -4,6 +4,7 @@ import java.util.List;
 
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,13 +25,13 @@ public class TodosController {
         this.service = service;
     }
 
-    @GetMapping()
+    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Todos>> getAllTodos() {
         List<Todos> todos = service.getAllTodos();
         return new ResponseEntity<>(todos, HttpStatus.OK);
     }
 
-    @GetMapping(params = "userId")
+    @GetMapping(params = "userId", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<Todos>> getTodosByUserId(@RequestParam(required = false) Integer userId) {
         if (userId == null) {
             throw new MissingParameterException("Request Paramer userId cannot be null");
@@ -39,7 +40,7 @@ public class TodosController {
         return new ResponseEntity<>(todos, HttpStatus.OK);        
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(path ="/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Todos> getTodoById(@PathVariable Integer id) {
         Todos todo = service.getTodoById(id);
         return new ResponseEntity<>(todo, HttpStatus.OK);
