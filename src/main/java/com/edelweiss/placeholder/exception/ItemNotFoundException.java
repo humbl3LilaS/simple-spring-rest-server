@@ -3,12 +3,12 @@ package com.edelweiss.placeholder.exception;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.server.ResponseStatusException;
 
-public class PostNotFoundException extends ResponseStatusException {
-    public PostNotFoundException(HttpStatusCode status) {
+public class ItemNotFoundException extends ResponseStatusException {
+    public ItemNotFoundException(HttpStatusCode status) {
         super(status);
     }
     
-    public PostNotFoundException(HttpStatusCode status, String reason) {
+    public ItemNotFoundException(HttpStatusCode status, String reason) {
         super(status, reason);
     }
 }

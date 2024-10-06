@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.edelweiss.placeholder.domain.Posts;
-import com.edelweiss.placeholder.exception.PostNotFoundException;
+import com.edelweiss.placeholder.exception.ItemNotFoundException;
 import com.edelweiss.placeholder.repository.PostsRepository;
 
 @Service
@@ -30,7 +30,7 @@ public class PostsService {
 
     public Posts findPostById(Integer id) {
         Posts post = repository.findById(id).orElseThrow(() -> {
-            throw new PostNotFoundException(HttpStatus.NOT_FOUND, "Post not found: Invalid Post Id");
+            throw new ItemNotFoundException(HttpStatus.NOT_FOUND, "Post not found: Invalid Post Id");
         });
         return post;
     }
@@ -38,7 +38,7 @@ public class PostsService {
     public List<Posts> findPostByUserId(Integer id) {
         List<Posts> posts = repository.findByUserId(id);
         if (posts.size() == 0) {
-            throw new PostNotFoundException(HttpStatus.NOT_FOUND, "There is no Post for provided User Id");
+            throw new ItemNotFoundException(HttpStatus.NOT_FOUND, "There is no Post for provided User Id");
         }
         return posts;
     }

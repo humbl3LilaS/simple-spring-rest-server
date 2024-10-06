@@ -7,7 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import com.edelweiss.placeholder.domain.Users;
-import com.edelweiss.placeholder.exception.UserNotFoundException;
+import com.edelweiss.placeholder.exception.ItemNotFoundException;
 import com.edelweiss.placeholder.repository.UserRepository;
 
 @Service
@@ -22,7 +22,7 @@ public class UserService {
     
     public Users getUser(Integer id) {
         Users user = userRepository.findById(id)
-                .orElseThrow(() -> new UserNotFoundException(HttpStatus.NOT_FOUND, "User Not Found"));
+                .orElseThrow(() -> new ItemNotFoundException(HttpStatus.NOT_FOUND, "User Not Found"));
         return user;
     }
 

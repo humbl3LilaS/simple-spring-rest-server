@@ -8,9 +8,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 
 import com.edelweiss.placeholder.exception.ErrorCustom;
 import com.edelweiss.placeholder.exception.IllegalParameterException;
-import com.edelweiss.placeholder.exception.PostNotFoundException;
-import com.edelweiss.placeholder.exception.TodoNotFoundException;
-import com.edelweiss.placeholder.exception.UserNotFoundException;
+import com.edelweiss.placeholder.exception.ItemNotFoundException;
+
 
 @ControllerAdvice
 public class GloablExceptionHandler {
@@ -34,21 +33,8 @@ public class GloablExceptionHandler {
         ErrorCustom error = new ErrorCustom(400, reason);
         return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorCustom> handleUserNotFoundExceptoin(UserNotFoundException ex) {
-        ErrorCustom error = new ErrorCustom(ex.getStatusCode().value(), ex.getReason());
-        return new ResponseEntity<>(error, ex.getStatusCode());
-    }
-    
-    @ExceptionHandler(TodoNotFoundException.class)
-    public ResponseEntity<ErrorCustom> handleTodoNotFoundException(TodoNotFoundException ex) {
-        ErrorCustom error = new ErrorCustom(ex.getStatusCode().value(), ex.getReason());
-        return new ResponseEntity<>(error, ex.getStatusCode());
-    }
-
-     @ExceptionHandler(PostNotFoundException.class)
-    public ResponseEntity<ErrorCustom> handlePostNotFoundException(PostNotFoundException ex) {
+    @ExceptionHandler(ItemNotFoundException.class)
+    public ResponseEntity<ErrorCustom> handleItemNotFoundExceptoin(ItemNotFoundException ex) {
         ErrorCustom error = new ErrorCustom(ex.getStatusCode().value(), ex.getReason());
         return new ResponseEntity<>(error, ex.getStatusCode());
     }
